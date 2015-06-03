@@ -2,7 +2,8 @@ Filter taxi data
 ----------------
 
 Filtering is implemented based on thresholds from
-[this paper](https://www.dropbox.com/s/deruyszudfqrll0/TRB15DonovanWork.pdf).
+[this paper](https://www.dropbox.com/s/deruyszudfqrll0/TRB15DonovanWork.pdf). These
+can be modified in `filter_config.py`.
 
 To filter a `csv` file, run:
 
