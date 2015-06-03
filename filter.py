@@ -1,11 +1,13 @@
-''' filters
+''' Filters taxi trip data based on parameters set in filter_config.py
 
 Example:
     python filter.py trip_data_1_small.csv trip_data_1_small_filtered.csv
 '''
+from __future__ import print_function
 
 import csv
 import argparse
+import filter_config as cfg
 
 from pdb import set_trace as T
 from math import radians, cos, sin, asin, sqrt
@@ -14,21 +16,6 @@ parser = argparse.ArgumentParser()
 parser.add_argument('in_filename', help='Filename for input trip data')
 parser.add_argument('out_filename', help='Filename to output filtered trip data')
 args = parser.parse_args()
-
-FILTER_FIELDS =\
- { ' trip_time_in_secs' : (60, 3600)
- , ' trip_distance'     : (0, 15)
- , ' pickup_longitude'  : (-74.1, -73.7)
- , ' pickup_latitude'   : (40.6, 40.9)
- , ' dropoff_longitude' : (-74.1, -73.7)
- , ' dropoff_latitude'  : (40.6, 40.9)
- }
-
-FILTER_PARAMS =\
- { 'geodesic'       : (0, 8)
- , 'winding_factor' : (1, 5)
- , 'pace'           : (0, 60)
- }
 
 def keep_row(row):
     keep = True
@@ -40,14 +27,14 @@ def keep_row(row):
           geodesic(row[' pickup_longitude'], row[' pickup_latitude'],
                    row[' dropoff_longitude'], row[' dropoff_latitude'])
         params['winding_factor'] = trip_distance / params['geodesic']
-        #params['pace'] = trip_time / trip_distance
+        params['pace'] = trip_time / trip_distance
 
         for param, value in params.items():
-            low, high = FILTER_PARAMS[param]
+            low, high = cfg.FILTER_PARAMS[param]
             if not (low <= value <= high):
                 keep = False
 
-        for field, (low, high) in FILTER_FIELDS.items():
+        for field, (low, high) in cfg.FILTER_FIELDS.items():
             if not (low <= float(row[field]) <= high):
                 keep = False
         return keep
@@ -75,7 +62,8 @@ def geodesic(lon1, lat1, lon2, lat2):
 with open(args.in_filename) as in_file:
     with open(args.out_filename,'w') as out_file:
         reader = csv.DictReader(in_file)
-        writer = csv.DictWriter(out_file, reader.fieldnames)
+        fieldnames = reader.fieldnames
+        print(','.join(fieldnames), file=out_file)
         for row in reader:
             if keep_row(row):
-                writer.writerow(row)
+                print(','.join(map(row.get, fieldnames)), file=out_file)
