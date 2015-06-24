@@ -7,7 +7,7 @@ from __future__ import print_function
 
 import csv
 import argparse
-import filter_config as cfg
+import config as cfg
 
 from pdb import set_trace as T
 from math import radians, cos, sin, asin, sqrt

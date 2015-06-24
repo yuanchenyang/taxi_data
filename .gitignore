@@ -1,6 +1,7 @@
 #python specific
 *.pyc
 __pycache__
+.ipynb_checkpoints
 
 #emacs specific
 \#*\#
