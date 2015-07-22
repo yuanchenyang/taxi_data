@@ -19,3 +19,4 @@ trip_data*.csv
 *.osm.pbf
 *.osm
 /ipynb/animation.gif
+/data/
