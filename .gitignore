@@ -20,3 +20,4 @@ trip_data*.csv
 *.osm
 /ipynb/animation.gif
 /data/
+/kernel_inference/filtered_paths.txt
