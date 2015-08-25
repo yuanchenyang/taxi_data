@@ -63,26 +63,36 @@ class PIFPathfinder(Pathfinder):
                  sigma=cfg['GPS_PEN'], penalty=cfg['PATH_PEN']):
 
         self.graph = graph
+        vertex_ids = graph.get_vertex_ids()
+        vertex_states = [graph.get_vertex_state(id) for id in vertex_ids]
+
         self.all_vertex_states = \
-          np.asarray([(s['lon'], s['lat']) for s in graph.get_vertex_states().values()],
-                     dtype='f8,f8')
+          np.asarray([(x['lon'], x['lat']) for x in vertex_states],
+                     dtype = 'f8,f8')
+
         self.sp_layout = self.create_spatial_layout()
         self.pif = PathInferenceFilter(self.graph, self.sp_layout,
                                        n_projs, n_paths, sigma, penalty)
+        self.interpolator = TrajectoryInterpolator(self.graph, self.sp_layout)
 
     def create_spatial_layout(self):
-        return SpatialLayout(self.graph.vertex_ids, self.all_vertex_states,
-                             self.graph.link_ids,   self.graph.link_coords)
+        return SpatialLayout(np.asarray(self.graph.get_vertex_ids(), dtype=np.int),
+                             self.all_vertex_states,
+                             self.graph.get_all_link_ids(),
+                             self.graph.get_all_link_coords())
 
     def pathfind(self, locs, thresholds=None):
         thresholds = thresholds or [cfg['DEFAULT_THRESHOLD']] * len(locs)
         locs = [(y, x) for x, y in locs] # PIF takes reversed lat-lon
 
-        inferred_paths, inferred_coords, _ = self.pif.run(locs, thresholds)
+        inferred_paths, inferred_coords, _, _ = self.pif.run(locs, thresholds)
         return sum(inferred_paths, [])
 
-    def create_interpolator(self):
-        return TrajectoryInterpolator(self.graph, self.sp_layout)
+    def interpolate(self, path, delta):
+        return self.interpolator.interpolate(path, delta)[1]
+
+    def interpolate_edges(self, path, delta):
+        return self.interpolator.interpolate(path, delta)[0]
 
 class OSRMPathfinder(Pathfinder):
     def __init__(self, baseurl):
@@ -107,12 +117,11 @@ def test():
     graph = make_graph('central_ny')
 
     pif = PIFPathfinder(graph)
-    ip = pif.create_interpolator()
 
-    print to_geojson(ip.interpolate(pif.pathfind(locs), delta))
+    print to_geojson(pif.interpolate(pif.pathfind(locs), delta))
 
-    osrm = OSRMPathfinder('http://127.0.0.1:5000')
-    print to_geojson(osrm.pathfind_coords(locs))
+    # osrm = OSRMPathfinder('http://127.0.0.1:5000')
+    # print to_geojson(osrm.pathfind_coords(locs))
 
 if __name__ == '__main__':
     test()
