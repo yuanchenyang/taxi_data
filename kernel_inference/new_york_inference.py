@@ -9,8 +9,8 @@ import pathfinder as pf
 from kernel_inference import Bins, Rect, uniq
 
 
-INPUT_FILE = '../data/trip_data_1_small_filtered.csv'
-OUTPUT_FILE = 'filtered_paths.txt'
+INPUT_FILE = '../data/trip_data_2_small.csv'
+OUTPUT_FILE = 'filtered_paths2.txt'
 DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S'
 TRIP_TIME_CUTOFF = 3000 # Max trip time in seconds
 FILTER_TIME_INTERVAL = (dt.time(18, 0), dt.time(20, 0)) # Time period to filter
@@ -64,4 +64,4 @@ def dump_paths():
             print >>outfile, json.dumps(res)
 
 if __name__ == '__main__':
-    load()
+    dump_paths()
